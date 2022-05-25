@@ -1,11 +1,13 @@
 package game2048;
 
+import jdk.jshell.EvalException;
+
 import java.util.Formatter;
 import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author Sober Wu
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -94,7 +96,7 @@ public class Model extends Observable {
         setChanged();
     }
 
-    /** Tilt the board toward SIDE. Return true iff this changes the board.
+    /** Tilt the board toward SIDE. Return true if this changes the board.
      *
      * 1. If two Tile objects are adjacent in the direction of motion and have
      *    the same value, they are merged into one Tile of twice the original
@@ -110,15 +112,74 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
-        // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+
+        board.startViewingFrom(side);
+        for (int c = 0; c < size(); c++ ) {
+            // 只需要从倒数第二行开始search
+            int startR = size() - 2;
+
+            // startR = 0 时仍要做判断
+            while(startR >= 0) {
+                // search the tile that is not null.
+                int r = search(c, startR);
+                // r == -1 means all tiles under startR + 1 is null.
+                if (r != -1) {
+                    /**
+                     * if the above tile is null, just move up.
+                     * and don't change the startR.
+                     * */
+                    if (tile(c, startR + 1) == null) {
+                        board.move(c, startR + 1, tile(c, r));
+                        changed = true;
+                    /**
+                     * if the above tile.value() is same as the tile,
+                     * move it up and merge.
+                     * and once it merged, it should not merge again.
+                     * so startR--.
+                     * */
+                    } else if (tile(c, startR + 1).value() == tile(c, r).value()) {
+                        score += tile(c, r).value() * 2;
+                        board.move(c, startR + 1, tile(c, r));
+                        changed = true;
+                        startR--;
+
+                    // if the above tile.value() is different, just move to (c, startR).
+                    } else {
+                        board.move(c, startR, tile(c, r));
+                        // if the tile is not itself, so the board changed.
+                        if (r != startR) {
+                            changed = true;
+                        }
+                        startR--;
+                    }
+
+                } else {
+                    break;
+                }
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    /** Helper for tilt. Search tile that
+     *  under (col, row) and is not null.
+     *
+     *  Return the row.
+     * */
+    private int search(int col, int row) {
+        for (int i = row; i >= 0; i--) {
+            if (board.tile(col, i) != null)
+                return i;
+        }
+        return -1;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -137,7 +198,13 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                if (b.tile(i, j) == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -147,7 +214,14 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                // java && short circuit.
+                if (b.tile(i, j) != null && b.tile(i, j).value() == MAX_PIECE){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -158,10 +232,24 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        return emptySpaceExists(b) || adjacentSame(b);
     }
 
+    // Return whether or not its adjacent same as it.
+    private static Boolean adjacentSame(Board b) {
+        int size = b.size();
+        for (int i = 0; i < size - 1; i++) {
+            for (int j = 0; j < size - 1; j++) {
+                if (b.tile(i, j).value() == b.tile(i + 1, j).value())
+                    return true;
+                if (b.tile(i, j).value() == b.tile(i, j + 1).value())
+                    return true;
+            }
+        }
+        // check the (size() - 1, size() - 1)
+        return b.tile(size - 1, size - 1).value() == b.tile(size - 2, size - 1).value() ||
+                (b.tile(size - 1, size - 1).value() == b.tile(size - 1, size - 2).value());
+    }
 
     @Override
      /** Returns the model as a string, used for debugging. */
