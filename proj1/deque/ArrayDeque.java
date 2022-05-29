@@ -25,10 +25,18 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     private void resize(int capacity) {
-        T[] temp = items;
-        items = (T[]) new Object[capacity];
-        System.arraycopy(temp, plusOne(nextFirst), items, 0, temp.length - plusOne(nextFirst));
-        System.arraycopy(temp, 0, items, temp.length - plusOne(nextFirst), nextLast);
+        T[] temp = (T[]) new Object[capacity];
+        int start = plusOne(nextFirst);
+        int end = minusOne(nextLast);
+        if (start <= end) {
+            System.arraycopy(items, start, temp, 0, end - start + 1);
+        } else {
+            System.arraycopy(items, start, temp, 0, items.length - start);
+            System.arraycopy(items, 0, temp, items.length - start, end + 1);
+        }
+        nextFirst = temp.length - 1;
+        nextLast = size;
+        items = temp;
     }
 
     private void expand() {
@@ -43,28 +51,22 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     @Override
     public void addFirst(T item) {
-        if (size == items.length) {
-            expand();
-        } else if (items.length > 8 && size < items.length / 4) {
-            shrink();
-        }
-
         items[nextFirst] = item;
         nextFirst = minusOne(nextFirst);
         size++;
+        if (size == items.length) {
+            expand();
+        }
     }
 
     @Override
     public void addLast(T item) {
-        if (size == items.length) {
-            expand();
-        } else if (items.length > 8 && size < items.length / 4) {
-            shrink();
-        }
-
         items[nextLast] = item;
         nextLast = plusOne(nextLast);
         size++;
+        if (size == items.length) {
+            expand();
+        }
     }
 
     @Override
@@ -84,16 +86,13 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (isEmpty()) {
             return null;
         }
-        if (size == items.length) {
-            expand();
-        } else if (items.length > 8 && size < items.length / 4) {
-            shrink();
-        }
-
         T ret = items[plusOne(nextFirst)];
         items[plusOne(nextFirst)] = null;
         nextFirst = plusOne(nextFirst);
         size--;
+        if (items.length >= 16 && size < items.length / 4) {
+            shrink();
+        }
         return ret;
     }
 
@@ -102,16 +101,13 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (isEmpty()) {
             return null;
         }
-        if (size == items.length) {
-            expand();
-        } else if (items.length > 8 && size < items.length / 4) {
-            shrink();
-        }
-
         T ret = items[minusOne(nextLast)];
         items[minusOne(nextLast)] = null;
         nextLast = minusOne(nextLast);
         size--;
+        if (items.length >= 16 && size < items.length / 4) {
+            shrink();
+        }
         return ret;
     }
 
@@ -139,7 +135,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
         @Override
         public T next() {
-            T returnItem = items[wizardPos];
+            T returnItem = get(wizardPos);
             wizardPos++;
             return returnItem;
         }
