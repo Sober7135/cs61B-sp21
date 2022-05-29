@@ -31,4 +31,25 @@ public class ArrayDequeTest {
         L.addLast(2);
         L.printDeque();
     }
+
+    @Test
+    public void equalTest() {
+        ArrayDeque<Integer> l1 = new ArrayDeque<>();
+        ArrayDeque<Integer> l2 = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            l1.addFirst(i);
+            l2.addFirst(i);
+        }
+        assertEquals(true, l1.equals(l2));
+    }
+
+    @Test
+    public void removeFirstTest() {
+        ArrayDeque<Integer> l1 = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            l1.addFirst(i);
+        }
+        int ret = l1.removeFirst();
+        System.out.println(ret);
+    }
 }

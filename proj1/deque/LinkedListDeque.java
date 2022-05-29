@@ -42,11 +42,6 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    @Override
     public int size() {
         return size;
     }
@@ -144,9 +139,13 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
-        T o = (T) obj;
-        for (T t : this) {
-            if (!t.equals(o)) {
+
+        LinkedListDeque<T> o = (LinkedListDeque<T>) obj;
+        if (this.size != o.size) {
+            return false;
+        }
+        for (int i = 0; i < size; i++) {
+            if (!get(i).equals(o.get(i))) {
                 return false;
             }
         }

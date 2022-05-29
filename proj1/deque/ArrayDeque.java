@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private T[] items;
-    int size;
+    private int size;
     private int nextFirst;
     private int nextLast;
 
@@ -51,6 +51,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
         items[nextFirst] = item;
         nextFirst = minusOne(nextFirst);
+        size++;
     }
 
     @Override
@@ -63,11 +64,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
         items[nextLast] = item;
         nextLast = plusOne(nextLast);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
+        size++;
     }
 
     @Override
@@ -147,7 +144,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             return returnItem;
         }
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -157,9 +154,12 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             return false;
         }
 
-        T o = (T) obj;
-        for (T t : this) {
-            if (!this.equals(t)) {
+        ArrayDeque<T> o = (ArrayDeque<T>) obj;
+        if (size != o.size()) {
+            return false;
+        }
+        for (int i = 0; i < size; i++) {
+            if (!get(i).equals(o.get(i))) {
                 return false;
             }
         }
@@ -172,7 +172,9 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 //        if (this == o) return true;
 //        if (o == null || getClass() != o.getClass()) return false;
 //        ArrayDeque<?> that = (ArrayDeque<?>) o;
-//        return size == that.size && nextFirst == that.nextFirst && nextLast == that.nextLast && Arrays.equals(items, that.items);
+//        return size == that.size && nextFirst
+//        == that.nextFirst && nextLast
+//        == that.nextLast && Arrays.equals(items, that.items);
 //    }
 //    @Override
 //    public int hashCode() {
