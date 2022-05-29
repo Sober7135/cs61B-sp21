@@ -146,11 +146,13 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (obj == this) {
             return true;
         }
-        if (obj == null || obj.getClass() != this.getClass()) {
+        if (obj == null) {
             return false;
         }
-
-        ArrayDeque<T> o = (ArrayDeque<T>) obj;
+        if (!(obj instanceof ArrayDeque) || !(obj instanceof LinkedListDeque)) {
+            return false;
+        }
+        Deque<T> o = (Deque<T>) obj;
         if (size != o.size()) {
             return false;
         }
