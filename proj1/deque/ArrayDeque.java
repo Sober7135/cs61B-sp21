@@ -8,6 +8,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private int nextFirst;
     private int nextLast;
 
+    @SuppressWarnings("unchecked")
     public ArrayDeque() {
         items = (T[]) new Object[8];
         size = 0;
@@ -25,6 +26,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     private void resize(int capacity) {
+        @SuppressWarnings("unchecked")
         T[] temp = (T[]) new Object[capacity];
         int start = plusOne(nextFirst);
         int end = minusOne(nextLast);
@@ -152,6 +154,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (!(obj instanceof Deque)) {
             return false;
         }
+        @SuppressWarnings("unchecked")
         Deque<T> o = (Deque<T>) obj;
         if (size != o.size()) {
             return false;
