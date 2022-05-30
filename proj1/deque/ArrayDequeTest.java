@@ -40,7 +40,7 @@ public class ArrayDequeTest {
             l1.addFirst(i);
             l2.addFirst(i);
         }
-        assertEquals(true, l1.equals(l2));
+        assertEquals(l1, l2);
 
         LinkedListDeque<Integer> d1 = new LinkedListDeque<>();
         ArrayDeque<Integer> d2 = new ArrayDeque<>();
@@ -49,7 +49,9 @@ public class ArrayDequeTest {
             d1.addFirst(i);
             d2.addFirst(i);
         }
-        assertEquals(true, l1.equals(l2));
+        assertTrue(d1.equals(d2));
+        d2.addFirst(1);
+        assertEquals(d2, d1);
     }
 
     @Test
